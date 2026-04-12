@@ -38,8 +38,6 @@
 #error "This file should not be included directly. Include nrfx_config.h instead."
 #endif
 
-#include "syscfg/syscfg.h"
-
 /**
  * @brief NRFX_DEFAULT_IRQ_PRIORITY
  *
