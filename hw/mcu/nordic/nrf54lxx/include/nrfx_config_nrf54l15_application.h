@@ -38,7 +38,13 @@
 #error "This file should not be included directly. Include nrfx_config.h instead."
 #endif
 
-#include "syscfg/syscfg.h"
+/*
+ * NOTE: syscfg/syscfg.h is NOT included here (unlike other nrfx_config files)
+ * because this config doesn't use MYNEWT_VAL() macros. Including it here would
+ * cause circular include issues: nrfx_config.h is included before nrf.h in the
+ * nrfx.h chain, but syscfg.h can trigger HAL includes that need chip types
+ * from nrf.h.
+ */
 
 /**
  * @brief NRFX_DEFAULT_IRQ_PRIORITY
@@ -55,7 +61,7 @@
  * Boolean. Accepted values: 0 and 1.
  */
 #ifndef NRFX_CLOCK_ENABLED
-#define NRFX_CLOCK_ENABLED 0
+#define NRFX_CLOCK_ENABLED 1
 #endif
 
 /**
