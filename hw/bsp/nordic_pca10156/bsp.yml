@@ -29,31 +29,29 @@ bsp.debugscript: "hw/bsp/nordic_pca10156/nordic_pca10156_debug.sh"
 bsp.flash_map:
     areas:
         # System areas.
-        FLASH_AREA_BOOTLOADER:
-            device: 0
-            offset: 0x00000000
-            size: 32kB
+        # No SPM/bootloader: image runs directly from 0x00000000.
+        # INCLUDE_IMAGE_HEADER is 0, so the vector table is at the very start.
         FLASH_AREA_IMAGE_0:
             device: 0
-            offset: 0x0000c000
-            size: 722kB
+            offset: 0x00000000
+            size: 1408kB
         FLASH_AREA_IMAGE_1:
             device: 0
-            offset: 0x000C0800
-            size: 722kB
+            offset: 0x00160000
+            size: 4kB
         FLASH_AREA_IMAGE_SCRATCH:
             device: 0
-            offset: 0x00175000
-            size: 16kB
+            offset: 0x00161000
+            size: 4kB
 
         # User areas.
         FLASH_AREA_REBOOT_LOG:
             user_id: 0
             device: 0
-            offset: 0x00008000
+            offset: 0x00162000
             size: 16kB
         FLASH_AREA_NFFS:
             user_id: 1
             device: 0
-            offset: 0x00179000
+            offset: 0x00166000
             size: 16kB
