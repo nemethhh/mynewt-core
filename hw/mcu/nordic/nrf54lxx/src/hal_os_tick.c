@@ -196,11 +196,13 @@ os_tick_init(uint32_t os_ticks_per_sec, int prio)
 
     nrf_grtc_sys_counter_interval_set(NRF_GRTC, g_hal_os_tick.ticks_per_ostick);
     nrf_grtc_sys_counter_set(NRF_GRTC, true);
-    /* Keep SYSCOUNTER awake so SYSCOUNTERH.BUSY always clears quickly.
-     * Without this, the counter can sleep after tickless idle, and reads
-     * inside nrf54l_os_tick_counter() spin on BUSY indefinitely while
-     * interrupts are disabled — freezing the entire system. */
-    nrf_grtc_sys_counter_active_set(NRF_GRTC, true);
+    /* Keep SYSCOUNTER awake while CPU executes; allow sleep during WFI.
+     * auto_mode ties SYSCOUNTER wakeup to CPU execution state: the domain
+     * stays active whenever the CPU is not sleeping, so BUSY clears
+     * promptly in all critical sections. During __WFI() the domain may
+     * sleep for power savings; compare events still fire because the GRTC
+     * hardware wakes the domain to deliver them. */
+    nrf_grtc_sys_counter_auto_mode_set(NRF_GRTC, true);
     nrf_grtc_task_trigger(NRF_GRTC, NRF_GRTC_TASK_START);
 
     OS_EXIT_CRITICAL(sr);
