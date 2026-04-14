@@ -197,12 +197,19 @@ os_tick_init(uint32_t os_ticks_per_sec, int prio)
     nrf_grtc_sys_counter_interval_set(NRF_GRTC, g_hal_os_tick.ticks_per_ostick);
     nrf_grtc_sys_counter_set(NRF_GRTC, true);
     /* Keep SYSCOUNTER awake while CPU executes; allow sleep during WFI.
-     * auto_mode ties SYSCOUNTER wakeup to CPU execution state: the domain
-     * stays active whenever the CPU is not sleeping, so BUSY clears
-     * promptly in all critical sections. During __WFI() the domain may
-     * sleep for power savings; compare events still fire because the GRTC
-     * hardware wakes the domain to deliver them. */
+     * auto_mode ties SYSCOUNTER wakeup to CPU execution state.
+     *
+     * WAKETIME (4 × 32kHz ≈ 122 µs): the GRTC hardware pre-wakes the
+     * SYSCOUNTER domain this many cycles before a compare event fires, so
+     * the domain is already accessible by the time the ISR reads the counter.
+     *
+     * TIMEOUT (5 × 32kHz ≈ 152 µs): how long after all CPUs enter WFI
+     * before the domain actually goes to sleep. A short timeout maximises
+     * power savings; the 4-cycle WAKETIME provides sufficient margin for
+     * the domain to re-settle before the next compare event. */
     nrf_grtc_sys_counter_auto_mode_set(NRF_GRTC, true);
+    nrf_grtc_waketime_set(NRF_GRTC, 4);
+    nrf_grtc_timeout_set(NRF_GRTC, 5);
     nrf_grtc_task_trigger(NRF_GRTC, NRF_GRTC_TASK_START);
 
     OS_EXIT_CRITICAL(sr);
